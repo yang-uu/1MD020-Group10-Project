@@ -2,6 +2,7 @@
 
 import cv2
 from loguru import logger
+from pyzxing import BarCodeReader
 
 class QRCodeDetector:
 
@@ -47,3 +48,14 @@ class DumbArUcoDetector:
                 points, detectedText, _ = results
                 logger.debug(f"Found with dict `{name}`.")
         return detectedText, points
+
+
+class DataMatrixDetector:
+    # If you are on a (virtual) machine without a display (e.g. WSL (Windows Subsystem for Linux)), you need to have a X11 server started.
+
+    def __init__(self):
+        self.detector = BarCodeReader()
+
+    def detect(self, img_array):
+        result = [item for item in self.detector.decode_array(img_array) if item.get("parsed") and item.get("points")]
+        return [item["parsed"].decode("utf-8") for item in result], [item["points"] for item in result]
